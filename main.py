@@ -23,11 +23,10 @@ _UserAgent_ = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:60.0) Gecko/20100101 
 
 
 FEEDS = OrderedDict([
+        ('Spravodajstvo','https://tvnitricka.sk/relacie/spravodajstvo/'),   
         ('Komunálna politika','https://tvnitricka.sk/relacie/komunalne-volby-2018/'),
-        ('Spravodajstvo','https://tvnitricka.sk/relacie/spravodajstvo/'),
-        ('Nitriansky hlásnik','https://tvnitricka.sk/relacie/magazin/'),
         ('Magazín / Objektívom TV Nitrička','https://tvnitricka.sk/relacie/magazin/'),
-        ('Relácie','https://tvnitricka.sk/relacie/magazin/'),
+        ('Relácie','https://tvnitricka.sk/relacie/relacie/'),
         ('Reklama','https://tvnitricka.sk/relacie/reklama/'),
         ('Súťaž a vyhraj','https://tvnitricka.sk/relacie/sutaz-a-vyhraj/'),
         ('Archív','https://tvnitricka.sk/relacie/archiv/'),
@@ -98,7 +97,10 @@ def list_videos(category):
     # for this type of content.
     xbmcplugin.setContent(_handle, 'videos')
     # Get the list of videos in the category.
-    url=FEEDS[category]
+    if 'tvnitricka.sk' not in category:
+        url=FEEDS[category]
+    else:
+        url=category
     httpdata = fetchUrl(url, "Loading categories...")
     for (url, other, title,plot) in re.findall(r'<a href="(http\S*?)" class="vid box ">(.*?)<h3>(.*?)<\/h3>\s*<p>(.*?)<\/p>', httpdata, re.DOTALL):
         thumb = re.findall(r'url\(\'(\S+?)\'\)"',other)[0]
@@ -124,7 +126,12 @@ def list_videos(category):
         is_folder = False
 
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
-
+    next=re.findall(r'<a class="next page-numbers" href="(\S*?)">Ďalšie<\/a>',httpdata)
+    if next:
+        url = get_url(action='listing', category=next[0])
+        is_folder = True
+        xbmcplugin.addDirectoryItem(_handle, url, xbmcgui.ListItem(label='Ďalšie'), is_folder)    
+    
     xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_NONE)
     xbmcplugin.endOfDirectory(_handle)
 
@@ -143,6 +150,8 @@ def play_video(path):
         videolink=re.findall(r'source: \'(.*?)\',',html)[0]
         play_item = xbmcgui.ListItem(path=videolink)
         # Pass the item to the Kodi player.
+        play_item.setProperty('inputstreamaddon','inputstream.adaptive')
+        play_item.setProperty('inputstream.adaptive.manifest_type','hls')
         xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 
 
