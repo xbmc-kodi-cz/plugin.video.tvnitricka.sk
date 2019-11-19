@@ -103,8 +103,8 @@ def list_videos(category):
         url=category
     httpdata = fetchUrl(url, "Loading categories...")
     for (url, other, title,plot) in re.findall(r'<a href="(http\S*?)" class="vid box ">(.*?)<h3>(.*?)<\/h3>\s*<p>(.*?)<\/p>', httpdata, re.DOTALL):
-        thumb = re.findall(r'url\(\'(\S+?)\'\)"',other)[0]
-        date = re.findall(r'<div class="date">(.+?)<\/div>',other)[0]
+        thumb = re.search(r'url\(\'(\S+?)\'\)"',other).group(1)
+        date = re.search(r'<div class="date">(.+?)<\/div>',other).group(1)
         date = date.split(',')[0]   
         title = date + ': ' + title      
         # Create a list item with a text label and a thumbnail image.
@@ -126,9 +126,9 @@ def list_videos(category):
         is_folder = False
 
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
-    next=re.findall(r'<a class="next page-numbers" href="(\S*?)">Ďalšie<\/a>',httpdata)
+    next=re.search(r'<a class="next page-numbers" href="(\S*?)">Ďalšie<\/a>',httpdata)
     if next:
-        url = get_url(action='listing', category=next[0])
+        url = get_url(action='listing', category=next.group(1))
         is_folder = True
         xbmcplugin.addDirectoryItem(_handle, url, xbmcgui.ListItem(label='Ďalšie'), is_folder)    
     
@@ -145,9 +145,8 @@ def play_video(path):
     """
     # get video link
     html = fetchUrl(path, "Loading video...")
-    print html
     if html:
-        videolink=re.findall(r'source: \'(.*?)\',',html)[0]
+        videolink=re.search(r'source: \'(.*?)\',',html).group(1)
         play_item = xbmcgui.ListItem(path=videolink)
         # Pass the item to the Kodi player.
         xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
