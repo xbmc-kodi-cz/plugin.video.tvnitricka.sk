@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.video.tvnitricka.sk"
-version="0.1.5"
+version="0.1.6"
 name="NitričkaTV"
 provider-name="rywko">
   <requires>
