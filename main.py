@@ -109,7 +109,7 @@ def list_videos(url):
         is_folder = False
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
 
-    next=re.search(r'<a class="next page-numbers" href="(\S*?)">Ďalšie<\/a>',httpdata)
+    next=re.search(r'<a class="next page-numbers" href="(\S*?)">Nasledujúce<\/a>',httpdata)
     if next:
         url = get_url(action='listing', url=next.group(1))
         is_folder = True
